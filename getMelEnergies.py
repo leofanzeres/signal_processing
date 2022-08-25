@@ -75,22 +75,7 @@ def getMelEnergies(wav_file, start=0, end=0, segment_signal=False, NFFT=512, nfi
     filter_banks = 20 * numpy.log10(filter_banks)  # dB
     
     return filter_banks
-    
-    #MFCC
-    num_ceps = 12
-    
-    mfcc = dct(filter_banks, type=2, axis=1, norm='ortho')[:, 1 : (num_ceps + 1)]
-    
-    cep_lifter = num_ceps
-    (nframes, ncoeff) = mfcc.shape
-    n = numpy.arange(ncoeff)
-    lift = 1 + (cep_lifter / 2) * numpy.sin(numpy.pi * n / cep_lifter)
-    mfcc *= lift  #*
-    
-    filter_banks -= (numpy.mean(filter_banks, axis=0) + 1e-8)
-        
-    mfcc -= (numpy.mean(mfcc, axis=0) + 1e-8)
-    
+
 
 def getAdmittedFrames(frames, blocksize, blocklimit):
     """
@@ -150,4 +135,5 @@ def getRMS(samples):
         tot += sample ** 2
     rms = math.sqrt(tot/len(samples))
     return rms
+
 
