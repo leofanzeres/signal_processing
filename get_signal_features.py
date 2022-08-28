@@ -5,7 +5,7 @@ import math
 from scipy.fftpack import dct
 
 
-def getMelEnergies(wav_file, start=0, end=0, segment_signal=False, NFFT=512, nfilt=40, frameAdmission=False):
+def getFeatures(wav_file, start=0, end=0, segment_signal=False, NFFT=512, nfilt=40, frameAdmission=False):
     """
     Code adapted from http://haythamfayek.com/2016/04/21/speech-processing-for-machine-learning.html
     Accessed on August 25, 2022
@@ -74,7 +74,22 @@ def getMelEnergies(wav_file, start=0, end=0, segment_signal=False, NFFT=512, nfi
     filter_banks = numpy.where(filter_banks == 0, numpy.finfo(float).eps, filter_banks)  # Numerical Stability
     filter_banks = 20 * numpy.log10(filter_banks)  # dB
     
-    return filter_banks
+    #MFCC
+    num_ceps = 12
+    
+    mfcc = dct(filter_banks, type=2, axis=1, norm='ortho')[:, 1 : (num_ceps + 1)] # Keep 2-13
+    
+    cep_lifter = num_ceps
+    (nframes, ncoeff) = mfcc.shape
+    n = numpy.arange(ncoeff)
+    lift = 1 + (cep_lifter / 2) * numpy.sin(numpy.pi * n / cep_lifter)
+    mfcc *= lift  #*
+    
+    filter_banks -= (numpy.mean(filter_banks, axis=0) + 1e-8)
+        
+    mfcc -= (numpy.mean(mfcc, axis=0) + 1e-8)
+    
+    return filter_banks, mfcc
 
 
 def getAdmittedFrames(frames, blocksize, blocklimit):
